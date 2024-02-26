@@ -130,7 +130,8 @@ ggplot(tmp, aes(Time,Player,fill=Player)) +
   scale_fill_manual(values=rev(tmp$Colour)) +
   coord_cartesian(xlim=c(min(tmp$Time)*.999,max(tmp$Time)**1.002)) +
   theme_blank() + 
-  annotate('text', x=rev(tmp$Time)+.045, y=1:length(tmp$Time), 
+  annotate('text', x=rev(tmp$Time)+mean(tmp$Time)/400, #for spacing
+           y=1:length(tmp$Time),
            label=paste0(format(rev(tmp$Time),nsmall=2),'s'))
 ```
 
@@ -158,7 +159,8 @@ ggplot(filter(tmp, !is.na(Time)), aes(Time,Player,fill=Player)) +
   scale_fill_manual(values = rev(tmp$Colour)) +
   coord_cartesian(xlim=c(min(tmp$Time)*.999,max(tmp$Time)**1.002)) +
   theme_blank() + 
-  annotate('text', x=rev(tmp$Time)+.045, y=1:length(tmp$Time), 
+  annotate('text', x=rev(tmp$Time)+mean(tmp$Time)/400, #for spacing
+           y=1:length(tmp$Time),
            label=paste0(format(rev(tmp$Time),nsmall=2),'s'))
 ```
 
