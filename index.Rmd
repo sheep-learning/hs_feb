@@ -7,7 +7,7 @@ output:
       version: 4
       bg: "#FFFFFF"
       fg: "#000000" 
-      primary: "#6BC4C4"
+      primary: "#0D0A47"
       base_font: 
         google: Prompt
       heading_font:
@@ -46,13 +46,13 @@ theme_blank <- function(){
 
 # colour palette for conistency
 #pal <- c('#800000','#767676','#FFA319','#8A9045','#155F83','#C16622')
-pal <- colorRampPalette(brewer.pal(6, "YlGnBu"))
+#pal <- colorRampPalette(brewer.pal(6, "YlGnBu"))
 
 # scoring system
 dw_scores <- c(25,22,19,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1)
 
 # function to create df for each day (might exist a better solution)
-tmp_df <- function(x,d){
+team_df <- function(x,d){
   return(filter(x,Day==d) %>% 
            mutate(Team=fct_reorder(Team,-Rank)) %>%
            arrange(Rank))
@@ -65,17 +65,41 @@ h2h_df <- function(x,d){
 
 indiv_df <- function(x,d){
   filter(x,Day==d & !is.na(Time)) %>%
-  select(Rank,Player,Time,`DW Points`=dw_pts,`Reverse Points`=rev_pts) %>% 
+  select(Colour,Rank,Team,Player,Time,
+         `Reverse Points`=rev_pts,
+         `DW Points`=dw_pts) %>%
+  arrange(Rank) %>%
   mutate(Player=fct_reorder(Player,-Rank))
+}
+
+final_df <- function(x){
+  select(x,-c(Day,Car,Track)) %>%
+  group_by(Player) %>%
+  summarise(Colour=Colour,
+            Team=Team,
+            Time = round(sum(Time)/n_distinct(x$Day),2),
+            dw_pts=sum(dw_pts),
+            rev_pts=sum(rev_pts)) %>%
+  arrange(Time) %>%
+  mutate(Rank = 1:nrow(.),.before = Player,
+         Player=fct_reorder(Player,-Rank))
 }
 ```
 
 ``` {r}
 #### DATA PREP ####
   # remove missing players to avoid errors
-results <- filter(raw,!is.na(Player)) %>% 
+results <- filter(raw,!is.na(Player)) %>%
+  # if using HS teams, add team colours
+  mutate(Colour=recode(Team, 
+                       'NN' ='#e53af5',
+                       'TD' ='#43F1DE',
+                       'EZ' ='#dbb1ff',
+                       'YY' ='#7d8072',
+                       'EBL'='#ccff00',
+                       'RED'='#ea2d45')) %>% 
   # gather columns of same type of info and add column for day
-  pivot_longer(-c(1:2), values_transform = as.character) %>%
+  pivot_longer(-c(1:3), values_transform = as.character) %>%
   # collate cols into one day col and one time col
   separate(name,c('Data','Day'),'_') %>% 
   pivot_wider(names_from = Data, values_from = value) %>%
@@ -84,12 +108,13 @@ results <- filter(raw,!is.na(Player)) %>%
   arrange(Day,Time) %>%
   mutate(Rank=rep(1:n_distinct(Player),n_distinct(Day)),.before=Player) %>%
   mutate(rev_pts=rev(Rank),
-         dw_pts=rep(dw_scores[1:n_distinct(Player)],n_distinct(Day)))
+         dw_pts=rep(dw_scores[1:n_distinct(Player)],n_distinct(Day))) 
 ```
 
 # Day 1
 ```{r}
 day=1
+tmp<-indiv_df(results,day)
 ```
 ##### **Car: `r raw$Car_1[day]`** <br> **Track: `r raw$Track_1[day]`**
 
@@ -98,11 +123,10 @@ Column
 --------------
 ### Time 
 ```{r}
-tmp<-indiv_df(results,day)
 # plot team performance
 ggplot(tmp, aes(Time,Player,fill=Player)) +
-  geom_col(position = 'dodge', show.legend=FALSE) +
-  scale_fill_manual(values = pal(nrow(tmp))) +
+  geom_col(position='dodge', show.legend=FALSE, colour='black') +
+  scale_fill_manual(values=rev(tmp$Colour)) +
   coord_cartesian(xlim=c(min(tmp$Time)*.999,max(tmp$Time)**1.002)) +
   theme_blank() + 
   annotate('text', x=rev(tmp$Time)+.045, y=1:length(tmp$Time), 
@@ -114,7 +138,7 @@ Column {data-width=600}
 ### Leaderboard 
 ```{r}
 # Table of overall player rankings
-kable(tmp)
+kable(select(tmp,-Colour))
 ```
 
 
@@ -124,22 +148,13 @@ Column
 --------------
 ### Average Time 
 ```{r}
-tmp2 <- results %>%
-    select(Player,Time,Day,rev_pts,dw_pts) %>% 
-    group_by(Player) %>%
-    summarise(Time = round(sum(Time)/n_distinct(results$Day),2),
-              dw_pts=sum(dw_pts),
-              rev_pts=sum(rev_pts)) %>%
-    arrange(Time) %>%
-    mutate(Rank = 1:nrow(.),.before = Player,
-           Player=fct_reorder(Player,-Rank)) 
-
-tmp <- filter(tmp2, !is.na(Time))
+final <- final_df(results)
+tmp <- filter(final, !is.na(Time))
 
 # plot performance
-ggplot(tmp, aes(Time,Player,fill=Player)) +
-  geom_col(position = 'dodge', show.legend=FALSE) +
-  scale_fill_manual(values = pal(nrow(tmp))) +
+ggplot(filter(tmp, !is.na(Time)), aes(Time,Player,fill=Player)) +
+  geom_col(position='dodge', show.legend=FALSE, colour='black') +
+  scale_fill_manual(values = rev(tmp$Colour)) +
   coord_cartesian(xlim=c(min(tmp$Time)*.999,max(tmp$Time)**1.002)) +
   theme_blank() + 
   annotate('text', x=rev(tmp$Time)+.045, y=1:length(tmp$Time), 
@@ -151,10 +166,10 @@ Column {data-width=300}
 ### DW Scoring 
 ```{r}
 # Table of overall player rankings
-kable(tmp2 %>%
-        select(Player, Points=dw_pts) %>%
+kable(tmp %>%
+        select(Team,Player,Points=dw_pts) %>%
         arrange(desc(Points)) %>%
-        mutate(Rank = 1:nrow(tmp2),.before=1)
+        mutate(Rank = 1:nrow(final),.before=1)
         )
 ```
 
@@ -163,10 +178,10 @@ Column {data-width=300}
 ### Reverse Scoring 
 ```{r}
 # Table of overall player rankings
-kable(tmp2 %>%
-        select(Player, Points=rev_pts) %>%
+kable(final %>%
+        select(Team,Player,Points=rev_pts) %>%
         arrange(desc(Points)) %>%
-        mutate(Rank = 1:nrow(tmp2),.before=1)
+        mutate(Rank = 1:nrow(final),.before=1)
         )
 ```
 
