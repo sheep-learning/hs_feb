@@ -44,25 +44,10 @@ theme_blank <- function(){
         panel.background = element_blank(),
         panel.grid = element_blank())}
 
-# colour palette for conistency
-#pal <- c('#800000','#767676','#FFA319','#8A9045','#155F83','#C16622')
-#pal <- colorRampPalette(brewer.pal(6, "YlGnBu"))
-
-# scoring system
+# dw scoring system
 dw_scores <- c(25,22,19,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1)
 
-# function to create df for each day (might exist a better solution)
-team_df <- function(x,d){
-  return(filter(x,Day==d) %>% 
-           mutate(Team=fct_reorder(Team,-Rank)) %>%
-           arrange(Rank))
-}
-
-h2h_df <- function(x,d){
-  pivot_wider(x, id_cols=h2h, names_from=Result, values_from=Team) %>% 
-    select(-h2h) 
-}
-
+# function for daily individual results
 indiv_df <- function(x,d){
   filter(x,Day==d & !is.na(Time)) %>%
   select(Colour,Rank,Team,Player,Time,
@@ -72,6 +57,7 @@ indiv_df <- function(x,d){
   mutate(Player=fct_reorder(Player,-Rank))
 }
 
+# function for final individual results
 final_df <- function(x){
   select(x,-c(Day,Car,Track)) %>%
   group_by(Player) %>%
@@ -88,8 +74,9 @@ final_df <- function(x){
 
 ``` {r}
 #### DATA PREP ####
-  # remove missing players to avoid errors
-results <- filter(raw,!is.na(Player)) %>%
+results <- raw %>%
+  # remove missing players to avoid error
+  filter(!is.na(Player)) %>%
   # if using HS teams, add team colours
   mutate(Colour=recode(Team, 
                        'NN' ='#e53af5',
@@ -105,9 +92,11 @@ results <- filter(raw,!is.na(Player)) %>%
   separate(name,c('Data','Day'),'_') %>% 
   pivot_wider(names_from = Data, values_from = value) %>%
   mutate(Time=round(as.numeric(Time),2), Day=as.numeric(Day)) %>%
-  # sort by lowest time for each day and add a rank column
+  # sort by lowest time for each day 
   arrange(Day,Time) %>%
+  # add column for rank based on lowest time
   mutate(Rank=rep(1:n_distinct(Player),n_distinct(Day)),.before=Player) %>%
+  # add points based on new rank column
   mutate(rev_pts=rev(Rank),
          dw_pts=rep(dw_scores[1:n_distinct(Player)],n_distinct(Day))) 
 ```
@@ -118,7 +107,6 @@ day=1
 tmp<-indiv_df(results,day)
 ```
 ##### **Car: `r raw$Car_1[day]`** <br> **Track: `r raw$Track_1[day]`**
-
 
 Column 
 --------------
