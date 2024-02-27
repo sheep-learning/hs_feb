@@ -98,7 +98,11 @@ results <- raw %>%
   mutate(Rank=rep(1:n_distinct(Player),n_distinct(Day)),.before=Player) %>%
   # add points based on new rank column
   mutate(rev_pts=rev(Rank),
-         dw_pts=rep(dw_scores[1:n_distinct(Player)],n_distinct(Day))) 
+         dw_pts=rep(dw_scores[1:n_distinct(Player)],n_distinct(Day))) %>%
+  # change NAs to 0 in DW points
+  mutate(dw_pts=case_when(
+    Rank>length(dw_scores)~0,
+    .default=dw_pts))
 ```
 
 # Day 1
@@ -130,5 +134,6 @@ Column {data-width=600}
 # Table of overall player rankings
 kable(select(tmp,-Colour))
 ```
+
 
 
