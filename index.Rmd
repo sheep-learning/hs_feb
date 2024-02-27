@@ -127,12 +127,12 @@ ggplot(tmp, aes(Time,Player,fill=Player)) +
            label=paste0(format(rev(tmp$Time),nsmall=2),'s'))
 ```
 
-Column {data-width=600}
+Column {data-width=400}
 --------------
 ### Leaderboard 
 ```{r}
 # Table of overall player rankings
-kable(select(tmp,-Colour,-Team))
+kable(select(tmp,-Colour,-Team,-`Reverse Points`,Points=`DW Points`))
 ```
 
 
