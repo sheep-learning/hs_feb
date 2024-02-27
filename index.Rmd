@@ -132,7 +132,7 @@ Column {data-width=600}
 ### Leaderboard 
 ```{r}
 # Table of overall player rankings
-kable(select(tmp,-Colour)%>%unite(Player,Team,Player,sep=" "))
+kable(select(tmp,-Colour,-Team))
 ```
 
 
