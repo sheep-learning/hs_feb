@@ -45,7 +45,7 @@ theme_blank <- function(){
         panel.grid = element_blank())}
 
 # dw scoring system
-dw_scores <- c(25,22,19,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1)
+dw_scores <- c(25,22,19,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0.9,0.8,0.7,0.6,0.5,0.4,0.3,0.2,0.1)
 
 # function for daily individual results
 indiv_df <- function(x,d){
@@ -127,13 +127,48 @@ ggplot(tmp, aes(Time,Player,fill=Player)) +
            label=paste0(format(rev(tmp$Time),nsmall=2),'s'))
 ```
 
-Column {data-width=400}
+Column {data-width=300}
 --------------
 ### Leaderboard 
 ```{r}
 # Table of overall player rankings
 kable(select(tmp,-Colour,-Team,-`Reverse Points`,Points=`DW Points`))
 ```
+
+# Overall Standings 
+
+Column 
+--------------
+### Average Time 
+```{r}
+final <- final_df(results)
+tmp <- filter(final, !is.na(Time))
+
+# plot performance
+ggplot(filter(tmp, !is.na(Time)), aes(Time,Player,fill=Player)) +
+  geom_col(position='dodge', show.legend=FALSE, colour='black') +
+  scale_fill_manual(values = rev(tmp$Colour)) +
+  coord_cartesian(xlim=c(min(tmp$Time)*.999,max(tmp$Time)**1.002)) +
+  theme_blank() + 
+  annotate('text', x=rev(tmp$Time)+.07, #for spacing
+           y=1:length(tmp$Time), size=2.5,
+           label=paste0(format(rev(tmp$Time),nsmall=2),'s'))
+```
+
+Column {data-width=300}
+--------------
+### Final Scores 
+```{r}
+# Table of overall player rankings
+kable(final %>%
+        select(Player,Points=dw_pts) %>%
+        arrange(desc(Points)) %>%
+        mutate(Rank = 1:nrow(final),.before=1)
+)
+```
+
+
+
 
 
 
