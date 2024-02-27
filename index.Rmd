@@ -118,8 +118,8 @@ ggplot(tmp, aes(Time,Player,fill=Player)) +
   scale_fill_manual(values=rev(tmp$Colour)) +
   coord_cartesian(xlim=c(min(tmp$Time)*.999,max(tmp$Time)**1.002)) +
   theme_blank() + 
-  annotate('text', x=rev(tmp$Time)+mean(tmp$Time)/400, #for spacing
-           y=1:length(tmp$Time),
+  annotate('text', x=rev(tmp$Time)+.07, #for spacing
+           y=1:length(tmp$Time), size=2.5,
            label=paste0(format(rev(tmp$Time),nsmall=2),'s'))
 ```
 
@@ -130,51 +130,5 @@ Column {data-width=600}
 # Table of overall player rankings
 kable(select(tmp,-Colour))
 ```
-
-
-# Final Standings 
-
-Column 
---------------
-### Average Time 
-```{r}
-final <- final_df(results)
-tmp <- filter(final, !is.na(Time))
-
-# plot performance
-ggplot(filter(tmp, !is.na(Time)), aes(Time,Player,fill=Player)) +
-  geom_col(position='dodge', show.legend=FALSE, colour='black') +
-  scale_fill_manual(values = rev(tmp$Colour)) +
-  coord_cartesian(xlim=c(min(tmp$Time)*.999,max(tmp$Time)**1.002)) +
-  theme_blank() + 
-  annotate('text', x=rev(tmp$Time)+mean(tmp$Time)/400, #for spacing
-           y=1:length(tmp$Time),
-           label=paste0(format(rev(tmp$Time),nsmall=2),'s'))
-```
-
-Column {data-width=300}
---------------
-### DW Scoring 
-```{r}
-# Table of overall player rankings
-kable(tmp %>%
-        select(Team,Player,Points=dw_pts) %>%
-        arrange(desc(Points)) %>%
-        mutate(Rank = 1:nrow(final),.before=1)
-        )
-```
-
-Column {data-width=300}
---------------
-### Reverse Scoring 
-```{r}
-# Table of overall player rankings
-kable(final %>%
-        select(Team,Player,Points=rev_pts) %>%
-        arrange(desc(Points)) %>%
-        mutate(Rank = 1:nrow(final),.before=1)
-        )
-```
-
 
 
