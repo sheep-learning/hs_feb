@@ -124,7 +124,6 @@ day=1
 tmp<-indiv_df(results,day)
 ```
 ##### **Car: `r raw$Car_1[day]`** <br> **Track: `r raw$Track_1[day]`**
-
 Column 
 --------------
 ### Time 
@@ -132,7 +131,6 @@ Column
 # plot team performance
 time_plot(tmp)
 ```
-
 Column {data-width=300}
 --------------
 ### Leaderboard 
@@ -147,7 +145,6 @@ day=2
 tmp<-indiv_df(results,day)
 ```
 ##### **Car: `r raw$Car_1[day]`** <br> **Track: `r raw$Track_1[day]`**
-
 Column 
 --------------
 ### Time 
@@ -155,7 +152,6 @@ Column
 # plot team performance
 time_plot(tmp)
 ```
-
 Column {data-width=300}
 --------------
 ### Leaderboard 
@@ -164,9 +160,7 @@ Column {data-width=300}
 kable(select(tmp,-Colour,-Team,-`Reverse Points`,Points=`DW Points`))
 ```
 
-
 # Overall Standings 
-
 Column 
 --------------
 ### Average Time 
@@ -177,7 +171,6 @@ tmp <- filter(final, !is.na(Time))
 # plot performance
 time_plot(tmp)
 ```
-
 Column {data-width=300}
 --------------
 ### Overall Scores 
@@ -189,9 +182,3 @@ kable(final %>%
         mutate(Rank = 1:nrow(final),.before=1)
 )
 ```
-
-
-
-
-
-
