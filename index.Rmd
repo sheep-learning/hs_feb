@@ -61,8 +61,8 @@ indiv_df <- function(x,d){
 final_df <- function(x){
   select(x,-c(Day,Car,Track)) %>%
   group_by(Player) %>%
-  summarise(Colour=Colour,
-            Team=Team,
+  summarise(Colour=first(Colour),
+            Team=first(Team),
             Time = round(sum(Time)/n_distinct(x$Day),2),
             dw_pts=sum(dw_pts),
             rev_pts=sum(rev_pts)) %>%
@@ -135,6 +135,37 @@ Column {data-width=300}
 kable(select(tmp,-Colour,-Team,-`Reverse Points`,Points=`DW Points`))
 ```
 
+# Day 2
+```{r}
+day=2
+tmp<-indiv_df(results,day)
+```
+##### **Car: `r raw$Car_1[day]`** <br> **Track: `r raw$Track_1[day]`**
+
+Column 
+--------------
+### Time 
+```{r}
+# plot team performance
+ggplot(tmp, aes(Time,Player,fill=Player)) +
+  geom_col(position='dodge', show.legend=FALSE, colour='black') +
+  scale_fill_manual(values=rev(tmp$Colour)) +
+  coord_cartesian(xlim=c(min(tmp$Time)*.999,max(tmp$Time)**1.002)) +
+  theme_blank() + 
+  annotate('text', x=rev(tmp$Time)+.14, #for spacing
+           y=1:length(tmp$Time), size=2.5,
+           label=paste0(format(rev(tmp$Time),nsmall=2),'s'))
+```
+
+Column {data-width=300}
+--------------
+### Leaderboard 
+```{r}
+# Table of overall player rankings
+kable(select(tmp,-Colour,-Team,-`Reverse Points`,Points=`DW Points`))
+```
+
+
 # Overall Standings 
 
 Column 
@@ -150,7 +181,7 @@ ggplot(filter(tmp, !is.na(Time)), aes(Time,Player,fill=Player)) +
   scale_fill_manual(values = rev(tmp$Colour)) +
   coord_cartesian(xlim=c(min(tmp$Time)*.999,max(tmp$Time)**1.002)) +
   theme_blank() + 
-  annotate('text', x=rev(tmp$Time)+.07, #for spacing
+  annotate('text', x=rev(tmp$Time)+.09, #for spacing
            y=1:length(tmp$Time), size=2.5,
            label=paste0(format(rev(tmp$Time),nsmall=2),'s'))
 ```
