@@ -122,7 +122,7 @@ ggplot(tmp, aes(Time,Player,fill=Player)) +
   scale_fill_manual(values=rev(tmp$Colour)) +
   coord_cartesian(xlim=c(min(tmp$Time)*.999,max(tmp$Time)**1.002)) +
   theme_blank() + 
-  annotate('text', x=rev(tmp$Time)+.1, #for spacing
+  annotate('text', x=rev(tmp$Time)+.12, #for spacing
            y=(1:length(tmp$Time))+.1, size=2.5,
            label=paste0(format(rev(tmp$Time),nsmall=2),'s'))
 ```
@@ -152,7 +152,7 @@ ggplot(tmp, aes(Time,Player,fill=Player)) +
   scale_fill_manual(values=rev(tmp$Colour)) +
   coord_cartesian(xlim=c(min(tmp$Time)*.999,max(tmp$Time)**1.002)) +
   theme_blank() + 
-  annotate('text', x=rev(tmp$Time)+.17, #for spacing
+  annotate('text', x=rev(tmp$Time)+.2, #for spacing
            y=(1:length(tmp$Time))+.1, size=2.5,
            label=paste0(format(rev(tmp$Time),nsmall=2),'s'))
 ```
@@ -181,14 +181,14 @@ ggplot(filter(tmp, !is.na(Time)), aes(Time,Player,fill=Player)) +
   scale_fill_manual(values = rev(tmp$Colour)) +
   coord_cartesian(xlim=c(min(tmp$Time)*.999,max(tmp$Time)**1.002)) +
   theme_blank() + 
-  annotate('text', x=rev(tmp$Time)+.11, #for spacing
+  annotate('text', x=rev(tmp$Time)+.14, #for spacing
            y=(1:length(tmp$Time))+.1, size=2.5,
            label=paste0(format(rev(tmp$Time),nsmall=2),'s'))
 ```
 
 Column {data-width=300}
 --------------
-### Final Scores 
+### Overall Scores 
 ```{r}
 # Table of overall player rankings
 kable(final %>%
