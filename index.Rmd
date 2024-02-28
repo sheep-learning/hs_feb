@@ -28,6 +28,7 @@ library(tidyverse)
 library(knitr)
 library(flexdashboard)
 library(RColorBrewer)
+library(plotly)
 
 # load in data
 raw <- readxl::read_excel('hs_feb.xlsx') 
@@ -147,14 +148,17 @@ Column
 ### Time 
 ```{r}
 # plot team performance
+ggplotly(
 ggplot(tmp, aes(Time,Player,fill=Player)) +
   geom_col(position='dodge', show.legend=FALSE, colour='black') +
   scale_fill_manual(values=rev(tmp$Colour)) +
   coord_cartesian(xlim=c(min(tmp$Time)*.999,max(tmp$Time)**1.002)) +
-  theme_blank() + 
-  annotate('text', x=rev(tmp$Time)+.2, #for spacing
-           y=(1:length(tmp$Time))+.1, size=2.5,
-           label=paste0(format(rev(tmp$Time),nsmall=2),'s'))
+  theme_blank() +
+  theme(axis.text.y = element_text(size = 5)), #+ 
+  # annotate('text', x=rev(tmp$Time)+.2, #for spacing
+  #          y=(1:length(tmp$Time))+.1, size=2.5,
+  #          label=paste0(format(rev(tmp$Time),nsmall=2),'s')),
+  tooltip='Time') %>% hide_legend()
 ```
 
 Column {data-width=300}
@@ -181,8 +185,11 @@ ggplot(filter(tmp, !is.na(Time)), aes(Time,Player,fill=Player)) +
   scale_fill_manual(values = rev(tmp$Colour)) +
   coord_cartesian(xlim=c(min(tmp$Time)*.999,max(tmp$Time)**1.002)) +
   theme_blank() + 
-  annotate('text', x=rev(tmp$Time)+.14, #for spacing
-           y=(1:length(tmp$Time))+.1, size=2.5,
+  annotate('rect',xmin=rev(tmp$Time)-.08,xmax=rev(tmp$Time)+.08,
+           ymin=(1:length(tmp$Time))-.45,ymax=(1:length(tmp$Time))+.45,
+           fill='white',color='black') +
+  annotate('text', x=rev(tmp$Time),#+.14, #for spacing
+           y=(1:length(tmp$Time))+.05, size=2.5,
            label=paste0(format(rev(tmp$Time),nsmall=2),'s'))
 ```
 
