@@ -181,6 +181,28 @@ Column {data-width=300}
 kable(select(tmp,-Colour,-Team,-`Reverse Points`,Points=`DW Points`))
 ```
 
+# Day 4
+```{r}
+day=4
+tmp<-indiv_df(results,day)
+```
+##### **Car: `r raw$Car_1[day]`** <br> **Track: `r raw$Track_1[day]`**
+Column 
+--------------
+### Time 
+```{r}
+# plot team performance
+time_plot(tmp)
+```
+Column {data-width=300}
+--------------
+### Leaderboard 
+```{r}
+# Table of overall player rankings
+kable(select(tmp,-Colour,-Team,-`Reverse Points`,Points=`DW Points`))
+```
+
+
 # Overall Standings 
 Column 
 --------------
