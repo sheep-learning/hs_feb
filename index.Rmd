@@ -55,7 +55,8 @@ indiv_df <- function(x,d){
          `Reverse Points`=rev_pts,
          `DW Points`=dw_pts) %>%
   arrange(Rank) %>%
-  mutate(Player=fct_reorder(Player,-Rank))
+  mutate(Player=fct_reorder(Player,-Rank),
+         Time=round(Time,2))
 }
 
 # function for final individual results
@@ -64,12 +65,13 @@ final_df <- function(x){
   group_by(Player) %>%
   summarise(Colour=first(Colour),
             Team=first(Team),
-            Time = round(sum(Time)/n_distinct(x$Day),2),
+            Time = sum(Time)/n_distinct(x$Day),
             dw_pts=sum(dw_pts),
             rev_pts=sum(rev_pts)) %>%
   arrange(Time) %>%
   mutate(Rank = 1:nrow(.),.before = Player,
-         Player=fct_reorder(Player,-Rank))
+         Player=fct_reorder(Player,-Rank),
+         Time = round(Time,2))
 }
 
 # function for daily plots
@@ -104,7 +106,7 @@ results <- raw %>%
   # collate cols into one day col and one time col
   separate(name,c('Data','Day'),'_') %>% 
   pivot_wider(names_from = Data, values_from = value) %>%
-  mutate(Time=round(as.numeric(Time),2), Day=as.numeric(Day)) %>%
+  mutate(Time=as.numeric(Time), Day=as.numeric(Day)) %>%
   # sort by lowest time for each day 
   arrange(Day,Time) %>%
   # add column for rank based on lowest time
@@ -201,6 +203,28 @@ Column {data-width=300}
 # Table of overall player rankings
 kable(select(tmp,-Colour,-Team,-`Reverse Points`,Points=`DW Points`))
 ```
+
+# Day 5
+```{r}
+day=5
+tmp<-indiv_df(results,day)
+```
+##### **Car: `r raw$Car_1[day]`** <br> **Track: `r raw$Track_1[day]`**
+Column 
+--------------
+### Time 
+```{r}
+# plot team performance
+time_plot(tmp)
+```
+Column {data-width=300}
+--------------
+### Leaderboard 
+```{r}
+# Table of overall player rankings
+kable(select(tmp,-Colour,-Team,-`Reverse Points`,Points=`DW Points`))
+```
+
 
 
 # Overall Standings 
